@@ -1,0 +1,64 @@
+<ion-view view-title='我要下单' hide-nav-bar="true">
+    <ion-header-bar class="bar-assertive header-back">
+        <div class="buttons">
+            <button class="button iconfont icon-back1 button-clear" ui-sref='tab.home'>返回</button>
+        </div>
+        <h1 class="title">我要下单</h1>
+    </ion-header-bar>
+    <ion-content class="bodybg-normal">
+        <!--<div class="yd-pay-header">
+			<img ng-src="{{shopsName.logo}}">
+			<h3 class="text-overflow_1">{{shopsName.title}}</h3>
+			<p class="text-overflow_1">{{shopsName.birthInfo}}</p>
+		</div>-->
+        <div class="yd-donate-count real-count">
+            <ul>
+                <li class="money">
+                    <label>商品名称</label>
+                    <input type="text" placeholder="请输入商品名称" ng-model="payInfo.goodName">
+                </li>
+                <li class="money">
+                    <label>商品价格</label>
+                    <input type="text" placeholder="请输入商品价格" ng-model="payInfo.price">
+                    <i>元</i>
+                </li>
+                <li class="money">
+                    <label>收货人</label>
+                    <input type="text" placeholder="请输入收货人姓名" ng-model="payInfo.realname">
+                </li>
+                <li class="money">
+                    <label>联系方式</label>
+                    <input type="text" placeholder="请输入联系方式" ng-model="payInfo.mobile">
+                </li>
+                <li ng-click="showPlatform = !showPlatform">
+                    <div class="flex beanType">
+                        <p class="flex_1">请选择购买的平台</p>
+                        <span>{{payInfo.platform || '请选择'}}<i class="iconfont icon-unfold" ng-if="showPlatform"></i><i class="iconfont icon-right" ng-if="!showPlatform"></i></span>
+                    </div>
+                    <div class="bean" ng-if="showPlatform">
+                        <p ng-click="platformType(item.id,item.title)" ng-repeat="(id,item) in info">{{item.title}}</p>
+                    </div>
+                </li>
+            </ul>
+
+            <section class="home-goods">
+                <h2 class="goods-title">
+                    <i class="iconfont icon-zhifu" style="position:relative;top:3px;"></i>
+                    <span>上传订单凭证</span>
+                </h2>
+            </section>
+            <div class="yd-add-img">
+                <em class="iconfont icon-add" ng-click="uploadAvatar()"></em>
+                <!--<img ng-src="payInfo.img " alt="">-->
+                <i id="divImg" ng-click="showOrder()"></i>
+
+            </div>
+            <div class="pay-bz flex padding">
+                <textarea rows="5" class="flex_1" placeholder="请输入备注信息" ng-model="payInfo.message"></textarea>
+            </div>
+        </div>
+        <div class="padding sure-btn">
+            <button class="button button-block button-assertive" ng-click="sureSubmit()">提交订单</button>
+        </div>
+    </ion-content>
+</ion-view>

@@ -1,0 +1,65 @@
+<ion-view title="首页" hide-nav-bar="true" hide-back-button="true">
+    <ion-header-bar class="bar-assertive header-back">
+        <h1 class="title">首页</h1>
+    </ion-header-bar>
+    <ion-content class="bodybg-normal">
+        <ion-refresher pulling-text="下拉刷新..." on-refresh="doRefresh()"></ion-refresher>
+        <!--滚动轮播图-->
+        <!--<ion-slide-box delegate-handle="slideimgs" does-continue="true" show-pager="true" auto-play="true">
+            <ion-slide ng-repeat="item in info.banner">
+                <a ng-href="{{item.link}}"><img ng-src="{{item.thumb}}" width="100%" class="banner-img"></a>
+            </ion-slide>
+        </ion-slide-box>-->
+        <!--slider开始-->
+        <div class="slide">
+            <div class="swiper-container">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide" ng-repeat="item in info.banner">
+                        <a ng-href="{{item.link}}"><img ng-src="{{item.thumb}}" width="100%" class="banner-img"></a>
+                    </div>
+                    <!--<div class="swiper-slide"><img src="img/slider2.jpg" alt="" /></div>-->
+                </div>
+                <!-- Add Pagination -->
+                <div class="swiper-pagination"></div>
+            </div>
+        </div>
+        <!--slider结束-->
+        <div style="height:30px;line-height:30px;font-size:14px;width:100%;">
+            <span style="width:20%;color:#fff;background-color:#fb7c62;float:left;text-align:center">公告</span>
+            <div id='test' style="width:80%;float:left;background-color:#fb7c62;height:30px;">
+            </div>
+        </div>
+        <section class="home-goods" style="margin-top:10px">
+            <h2 class="goods-title">
+                <i class="iconfont icon-vipshengji"></i>
+                <span>会员商品</span>
+            </h2>
+            <div class="goods-list">
+                <a href="#" class="goods" ng-repeat="item in info.goods | orderBy:'cid'" ui-sref='user.goodInfo({role:($index+1)})'><img ng-src="{{item.thumbs}}" alt=""></a>
+            </div>
+        </section>
+        <div class="home-buy">
+            <button class="button button-block button-assertive" style="background: linear-gradient(to right, rgba(253,132,89,0.93) , rgba(247,86,82,0.93));letter-spacing: 5px;"
+                ng-click="createOrder()">我要下单</button>
+        </div>
+        <section class="home-goods">
+            <h2 class="goods-title">
+                <i class="iconfont icon-shangpin" style="position: relative;top: 2px;"></i>
+                <span>购物链接</span>
+            </h2>
+            <div class="buy-list" style="padding-top: 5px;">
+                <ul class="clearfix">
+                    <li ng-repeat="item in info.navigation" ng-click="openLink(item.link)">
+                        <a>
+                            <!--ng-href="{{item.link}}"-->
+                            <div class="buy-img">
+                                <img ng-src="{{item.thumb}}" />
+                            </div>
+                            <p ng-bind="item.title"></p>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </section>
+    </ion-content>
+</ion-view>

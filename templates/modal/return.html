@@ -1,0 +1,17 @@
+<ion-modal-view>
+	<ion-view view-title="退货原因" hide-nav-bar="true">
+		<ion-header-bar class="bar-assertive header-back">
+			<div class="buttons">
+				<button class="button iconfont icon-back1 button-clear" ng-click="returnModal.hide()">返回</button>
+			</div>
+			<h1 class="title">退货原因</h1>
+		</ion-header-bar>
+		<ion-content class="bodybg-normal">
+			<div class="yd-reject-con flex">
+				<textarea  rows="10" class="flex_1" placeholder="请输入退货原因" ng-model="orderInfo.returnMsg"></textarea>
+			</div>
+			<button class="button button-block button-assertive zl_btn_center" ng-click="return()">申请退货</button>
+		</ion-content>
+	</ion-view>
+</ion-modal-view>
+

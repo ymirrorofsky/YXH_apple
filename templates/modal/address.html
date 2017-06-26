@@ -1,0 +1,38 @@
+<ion-view view-title='收货信息' hide-nav-bar="true">
+    <ion-header-bar class="bar-assertive header-back">
+
+        <h1 class="title">收货信息</h1>
+        <div class="buttons">
+            <button class="button button-clear" ng-click="addressModal.hide()">关闭</button>
+        </div>
+    </ion-header-bar>
+    <ion-content class="bodybg-normal">
+        <div class="yd-donate-count real-count">
+            <ul>
+                <li class="money">
+                    <label>收货人</label>
+                    <input type="text" placeholder="请输入收货人姓名" ng-model="addressInfo.realname">
+                </li>
+                <li class="money">
+                    <label>联系方式</label>
+                    <input type="text" placeholder="请输入联系方式" ng-model="addressInfo.mobile">
+                </li>
+                <li class="flex" ng-click="areaShow()">
+                    <p class="flex_1">选择地址</p>
+                    <span ng-bind="up.userInfo.area||'点击选择'"></span>
+                    <i class="iconfont icon-right" style="color:#fe5400"></i>
+                </li>
+                <li>
+                    <label>详细地址</label>
+                    <input type="text" maxlength="11" placeholder="请输入详细地址" ng-model="addressInfo.address">
+                </li>
+            </ul>
+            <div class="pay-bz flex padding">
+                <textarea rows="5" class="flex_1" placeholder="备注信息" ng-model="addressInfo.message"></textarea>
+            </div>
+        </div>
+        <div class="padding sure-btn">
+            <button class="button button-block button-assertive" ng-click="buymemgoods()">购买</button>
+        </div>
+    </ion-content>
+</ion-view>

@@ -1,0 +1,36 @@
+<ion-view title="订单列表" hide-nav-bar="true" hide-back-button="true">
+
+    <ion-header-bar class="bar-assertive header-back">
+        <div class="buttons">
+            <button class="button iconfont icon-back1 button-clear" ui-sref='tab.my'>返回</button>
+        </div>
+        <h1 class="title">{{orderStatus[type]||'订单列表'}}</h1>
+    </ion-header-bar>
+    <ion-content class="bodybg-normal" style="overflow:hidden">
+        <ion-refresher pulling-text="下拉刷新..." on-refresh="doRefresh()"></ion-refresher>
+        <div class="common-empty" ng-if="orderEmpty">什么也没有...</div>
+        <div class="shop-order-list" ng-if="!orderEmpty">
+            <ul>
+                <li ui-sref="user.orderInfo({orderId:item.orderId})" ng-repeat="item in orderList">
+                    <a href="javascript:">
+                        <div class="flex" style="line-height:30px;border-bottom:1px solid #000">
+                            <p class="flex_1 text-overflow_1">商品名称：<i ng-bind="item.goodsName"></i></p><span>金额：<em class="positive" ng-bind="item.price"></em>元</span>
+                        </div>
+                        <div class="flex bottom">
+                            <p class="flex_1">订单编号：<i ng-bind="item.orderId"></i></p> <span><i class="iconfont icon-right arrow-right"></i></span>
+                        </div>
+                        <div class="flex bottom">
+                            <p class="flex_1">下单时间：<i ng-bind="item.createtime*1000 | date:'yyyy-MM-dd HH:mm'"></i></p>
+                        </div>
+                        <div class="arrow"></div>
+                        <!--<div class="flex bottom">
+                            <p class="flex_1">下单vl：{{item.orderId}}</p><span>
+                        </div>-->
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <ion-infinite-scroll ng-if="!noMore" on-infinite="loadMore()" distance="1%" immediate-check="false">
+        </ion-infinite-scroll>
+    </ion-content>
+</ion-view>

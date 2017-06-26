@@ -1,0 +1,108 @@
+<ion-view view-title="个人中心" hide-nav-bar="true" hide-back-button="true">
+    <ion-header-bar class="bar-assertive header-back">
+        <div class="buttons" ui-sref="user.center">
+            <button class="button iconfont icon-shezhi button-clear button-icon-size" style="padding-left:14px;font-size:24px;"></button>
+        </div>
+        <h1 class="title">个人中心</h1>
+    </ion-header-bar>
+    <ion-content class="bodybg-normal" >
+        <ion-refresher pulling-text="下拉刷新..." on-refresh="doRefresh()"></ion-refresher>
+        <div class="my-header">
+            <div class="mobile">
+                <i class="iconfont icon-geren2" style="padding:11px 0;font-size:40px" ng-if="info.role == 0"></i>                
+                <i class="iconfont icon-gold" style="padding:11px 0;color:gold;font-size:40px;text-shadow: rgb(143, 112, 43) 1px 3px 3px;" ng-if="info.role == 1"></i>
+                <i class="iconfont icon-silver" style="padding:11px 0;color:#d5cccc;font-size:40px;text-shadow: 1px 3px 3px #6e888f;" ng-if="info.role == 2"></i>
+                <i class="iconfont icon-copper" style="padding:11px 0;color: rgba(203,185,123,0.93);font-size:40px;text-shadow: 1px 3px 3px #88793d;" ng-if="info.role == 3"></i>
+                <!--color: linear-gradient(to right, rgba(203,185,123,0.93) , rgba(244,237,183,0.93));-->
+                <p style="margin: 5px 0 10px;">ID: <span ng-bind="info.uid || '无'"></span>&nbsp;&nbsp;&nbsp;&nbsp;账号:<span ng-bind="info.mobile || '无'"></span>&nbsp;&nbsp;&nbsp;&nbsp;级别:
+                    <span
+                        ng-bind="rank[info.role] || '无'"></span>
+                </p>
+            </div>
+        </div>
+        <div class="flex yd-love-exBean" ui-sref="user.getRealMoney" style="background-color:#fff;margin-top: 10px;">
+            <div class="flex_1">
+                <p><i class="iconfont icon-woyaohuigoutubiao" style="color:gold"></i>可提金额<span ng-bind="info.allowMoney || 0" style="margin-left:5px;color:#FE5400"></span>&nbsp;(元)</p>
+            </div>  
+            提现<i class="iconfont icon-right" style="position: relative;top: 2px;"></i>
+        </div>
+        <div class="flex yd-love-exBean" ui-sref="user.recommend" style="background-color:#fff;margin-top: 10px;">
+            <div class="flex_1">
+                <p><i class="iconfont icon-tuijian" style="color:#0a9dc7"></i>我要推荐</p>
+            </div>
+            <i class="iconfont icon-right" style="position: relative;top: 2px;"></i>
+        </div>
+        <section class="order_center">
+            <h3><i class="iconfont icon-dingdan" style="color: #008891;"></i>订单中心</h3>
+            <div class="my-order orderlist-head">
+                <ul class="clearfix">
+                    <li ui-sref='user.orderList({type:1})' ng-class="{'onOrder':orderStatus=='1'}"><i class="iconfont icon-jilu"></i><span>待付款</span></li>
+                    <li ui-sref='user.orderList({type:2})' ng-class="{'onOrder':orderStatus=='2'}"><i class="iconfont icon-pay"></i><span>待收货</span></li>
+                    <li ui-sref='user.orderList({type:3})' ng-class="{'onOrder':orderStatus=='3'}"><i class="iconfont icon-send"></i><span>已收货</span></li>
+                    <li ui-sref='user.orderList({type:5})' ng-class="{'onOrder':orderStatus=='5'}"><i class="iconfont icon-deliver"></i><span>已完成</span></li>
+                    <li ui-sref='user.orderList({type:6})' ng-class="{'onOrder':orderStatus=='6'}"><i class="iconfont icon-dou-copy"></i><span>激励中</span></li>
+                    <li ui-sref='user.orderList({type:7})' ng-class="{'onOrder':orderStatus=='7'}"><i class="iconfont icon-woyaohuigoutubiao"></i><span>已激励</span></li>
+                    <li ui-sref='user.goodReturn({type:1})' ng-class="{'onOrder':orderStatus=='4'}"><i class="iconfont icon-dingdan2"></i><span>退货</span></li>
+                </ul>
+            </div>
+        </section>
+        <section class="order_center">
+            <h3><i class="iconfont icon-woyaohuigoutubiao" style="color: #F2753F;"></i>激励中心</h3>
+            <div class="yd-love-tnum">
+                <ul class="clearfix">
+                    <li class="com">
+                        <span class="positive" ng-bind="info.allowBack || 0"></span>
+                        <p>可激励总额</p>
+                    </li>
+                    <li class="com">
+                        <span class="positive" ng-bind="info.doneBack || 0"></span>
+                        <p>已激励总额</p>
+                    </li>
+                    <li class="com" style="border-right:none">
+                        <span class="positive" ng-bind="info.yestodayBack  || 0"></span>
+                        <p>昨日激励</p>
+                    </li>
+                </ul>
+            </div>
+            <div class="flex yd-love-exBean" ui-sref="user.moneyBack">
+                <div class="flex_1">
+                    <p><i class="iconfont icon-woyaohuigoutubiao"></i>激励明细</p>
+                </div>
+                <i class="iconfont icon-right"></i>
+            </div>
+        </section>
+        <section class="order_center">
+            <h3><i class="iconfont icon-share" style="color: #11c1f3"></i>推荐中心</h3>
+            <div class="yd-love-tnum">
+                <ul class="clearfix">
+                    <li class="com" style="width:50%;">
+                        <span class="positive" ng-bind="info.recTPerson || 0"></span>
+                        <p>推荐总人数</p>
+                    </li>
+                    <li class="com" style="width:50%;">
+                        <span class="positive" ng-bind="info.tui || 0.00"></span>
+                        <p>推荐总收益</p>
+                    </li>
+                </ul>
+            </div>
+            <div class="flex yd-love-exBean" ui-sref="user.recPersonDetail">
+                <div class="flex_1">
+                    <p><i class="iconfont icon-geren2"></i>推荐人数详情</p>
+                </div>
+                <i class="iconfont icon-right"></i>
+            </div>
+            <div class="flex yd-love-exBean" ui-sref="user.recPersonProfit">
+                <div class="flex_1">
+                    <p><i class="iconfont icon-woyaohuigoutubiao"></i>推荐会员收益</p>
+                </div>
+                <i class="iconfont icon-right"></i>
+            </div>
+            <div class="flex yd-love-exBean" ui-sref="user.recBuyProfit">
+                <div class="flex_1">
+                    <p><i class="iconfont icon-woyaohuigoutubiao"></i>推荐消费收益</p>
+                </div>
+                <i class="iconfont icon-right"></i>
+            </div>
+        </section>
+
+    </ion-content>

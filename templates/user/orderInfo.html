@@ -1,0 +1,37 @@
+<ion-view view-title="订单详情" hide-nav-bar="true">
+	<ion-header-bar class="bar-assertive header-back">
+		<div class="buttons">
+			<button class="button iconfont icon-back1 button-clear" ng-click="$ionicGoBack()">返回</button>
+		</div>
+		<h1 class="title">订单详情</h1>
+		<div class="buttons" ng-if="orderInfo.orderStatus == 0 && type == 'shops'" ng-click="rejectContent()">
+			<button class="button button-clear">拒绝</button>
+		</div>
+	</ion-header-bar>
+	<ion-content class="bodybg-normal">
+		<!--<div class="yd-shops-avatar">-->
+		<!--<img src="img/ali_logo.png">-->
+		<!--</div>-->
+		<hr style="background: #E0E0E0;height: 15px;margin:0;" />
+		<div class="yd-shops-order">
+			<h3 style="border:none">订单详情</h3>
+			<p>用&nbsp;户&nbsp;姓&nbsp;名：{{orderInfo.realname || '暂无'}}</p>
+			<p>用户手机号：{{orderInfo.mobile || '暂无'}}</p>
+			<p>商&nbsp;品&nbsp;名&nbsp;称：{{orderInfo.goodsName || '暂无'}}</p>
+			<p>下&nbsp;单&nbsp;时&nbsp;间：{{orderInfo.createtime*1000 | date:'yyyy-MM-dd HH:mm'}}</p>
+			<p>订&nbsp;单&nbsp;编&nbsp;号：{{orderInfo.orderId}}</p>
+			<p>订&nbsp;单&nbsp;金&nbsp;额：{{orderInfo.price}}元</p>
+			<p>状&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;态：{{orderStatus[orderInfo.status]}}</p>
+			<p ng-if="orderInfo.status == 2">快&nbsp;递&nbsp;单&nbsp;号：{{orderInfo.expressId || '无(卖家未发货)'}}  <span ng-click="copy()" class="express" ng-if="orderInfo.expressId">复制</span></p>
+		</div>
+		<div>
+			<div class="yd-pay-voucher"><span ng-click="showOrder()">点击查看订单凭证</span></div>
+		</div>
+		<button class="button button-block button-assertive zl_btn_center" ng-if="orderInfo.status == 1" ui-sref='user.pay({orderId:orderInfo.orderId,Price:orderInfo.price})'>支付</button>
+		<button class="button button-block button-assertive zl_btn_center" ng-if="orderInfo.status == 3 && orderInfo.select_re == 0" ng-click="sureFinish()">完成订单</button>
+		<button class="button button-block button-assertive zl_btn_center" ng-if="orderInfo.status == 10 && orderInfo.select_re == 3" ng-click="sureFinish()">完成订单</button>
+		<button class="button button-block button-assertive zl_btn_center" ng-if="orderInfo.status == 2" ng-click="express()" style="background-color: #ef4e3a;">快递查询入口</button>
+		<button class="button button-block button-assertive zl_btn_center" ng-if="orderInfo.status == 2" ng-click="sureGet()">确认收货</button>
+		<div class="forget_psd"  ng-bind="'申请售后'"  ng-if="orderInfo.status == 3 && orderInfo.select_re == 0" ng-click='returnApply()' style="padding-right:5%"></div>
+	</ion-content>  
+</ion-view>

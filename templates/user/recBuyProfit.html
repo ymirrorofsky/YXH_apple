@@ -1,0 +1,86 @@
+<ion-view view-title="推荐消费收益" hide-nav-bar='true'>
+    <ion-header-bar class="bar-assertive header-back">
+        <div class="buttons">
+            <button class="button iconfont icon-back1 button-clear" ui-sref='tab.my'>返回</button>
+        </div>
+        <h1 class="title">推荐消费收益</h1>
+    </ion-header-bar>
+
+
+    <ion-content class="bodybg-normal" on-swipe-right="onSwipe('r', select)" on-swipe-left="onSwipe('l', select)">
+          <ion-refresher pulling-text="下拉刷新..." on-refresh="doRefresh()"></ion-refresher>
+        <div class="count-header">
+            <div class="turnover" style="padding: 10px 0;">
+                <h4 ng-bind="info.count.sum || 0.00  " style="line-height: 40px;"></h4>
+                <p ng-click="showAlert()">推荐消费总收益(元)</p>
+            </div>
+
+            <div class="my-header" style="height:60px;">
+                <ul class="clearfix" style="padding: 5px 0;">
+                    <li>
+                        <div>
+                            <span ng-bind="info.count.gold || 0"></span>
+                            <p>金牌收益</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <span ng-bind="info.count.silver || 0.00"></span>
+                            <p>银牌收益</p>
+                        </div>
+                    </li>
+                    <li ui-sref="user.excitation">
+                        <div>
+                            <span ng-bind="info.count.copper || 0"></span>
+                            <p>铜牌收益</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col" ng-click="active(1)" ng-class="{'active': select == 1}" style="padding:0">金牌</div>
+            <div class="col" ng-click="active(2)" ng-class="{'active': select == 2}" style="padding:0">银牌</div>
+            <div class="col" ng-click="active(3)" ng-class="{'active': select == 3}" style="padding:0">铜牌</div>
+        </div>
+        <div class="bodybg-normal">
+            <div class="s-empty"></div>
+            <div class="shop-order-list" ng-if="!orderEmpty">
+                <ul>
+                    <li ng-repeat="item in info.buyList">
+                        <a>
+                            <div class="flex">
+                                <p class="flex_1 text-overflow_1">订单编号:<span ng-bind="item.orderId"></span>
+                                </p>
+                                <span>会员ID：<em ng-bind="item.uid"></em></span>
+                            </div>
+                            <div class="flex bottom">
+                                <p class="flex_1">时间：<span ng-bind="item.createtime*1000 | date:'yyyy-MM-dd HH:mm'"></span></p>
+                                <span style='color:#FE5400;'>收益：<em class="positive" ng-bind="{{item.price}}"></em>元</span>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <!--<div class="common-empty" ng-if="orderEmpty">
+                <div class="yd-mesg-coutent" ng-if="!orderEmpty" ng-repeat="item in financeInfo.order">
+                    <div class="row">
+                        <div class="col" style="flex:2;">时间</div>
+                        <div class="col" style="flex:1;">账号</div>
+                        <div class="col" style="flex:1;">收益</div>
+                    </div>
+                    <div class="row">
+                        <div class="col" style="flex:2;">{{item.orderId}}</div>
+                        <div class="col" style="flex:1;">{{item.orderPrice}}</div>
+                        <div class="col" style="flex:1;">{{item.payPrice}}</div>
+                    </div>
+                </div>
+
+            </div>-->
+
+            <ion-infinite-scroll ng-if="!noMore" on-infinite="loadMore()" distance="1%" immediate-check="false">
+            </ion-infinite-scroll>
+
+    </ion-content>
+
+</ion-view>

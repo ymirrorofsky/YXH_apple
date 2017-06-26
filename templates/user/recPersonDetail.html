@@ -1,0 +1,65 @@
+<ion-view view-title="推荐人数详情" hide-nav-bar='true'>
+    <ion-header-bar class="bar-assertive header-back">
+        <div class="buttons">
+            <button class="button iconfont icon-back1 button-clear" ui-sref='tab.my'>返回</button>
+        </div>
+        <h1 class="title">推荐人数详情</h1>
+    </ion-header-bar>
+
+
+    <ion-content class="bodybg-normal" on-swipe-right="onSwipe('r', select)" on-swipe-left="onSwipe('l', select)">
+          <ion-refresher pulling-text="下拉刷新..." on-refresh="doRefresh()"></ion-refresher>
+        <div class="count-header">
+            <div class="turnover" style="padding: 10px 0;">
+                <h4 ng-bind="info.count.sum || 0.00  " style="line-height: 40px;"></h4>
+                <p ng-click="showAlert()">推荐总人数</p>
+            </div>
+        </div>
+        <!--<div class="my-header">
+            <ul class="clearfix">
+                <li>
+                    <div>
+                        <span ng-bind="financeInfo.sum || 0"></span>
+                        <p>金牌人数</p>
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <span ng-bind="financeInfo.total || 0.00"></span>
+                        <p>银牌人数</p>
+                    </div>
+                </li>
+                <li ui-sref="user.excitation">
+                    <div>
+                        <span ng-bind="financeInfo.pay || 0"></span>
+                        <p>铜牌人数</p>
+                    </div>
+                </li>
+            </ul>
+        </div>-->
+        <div class="row">
+            <div class="col" ng-click="active(1)" ng-class="{'active': select == 1}" style="padding:0">金牌 <span ng-bind="info.count.gold || 0"></span> (人)</div>
+            <div class="col" ng-click="active(2)" ng-class="{'active': select == 2}" style="padding:0">银牌 <span ng-bind="info.count.silver || 0"></span> (人)</div>
+            <div class="col" ng-click="active(3)" ng-class="{'active': select == 3}" style="padding:0">铜牌 <span ng-bind="info.count.copper || 0"></span> (人)</div>
+        </div>
+        <div class="bodybg-normal">
+            <div class="common-empty" ng-if="orderEmpty">什么都没有 </div>
+               <div class="yd-mesg-coutent" ng-if="!orderEmpty">
+                    <div class="row">
+                        <div class="col" style="flex:1;">时间</div>
+                        <div class="col" style="flex:1;">账号</div>
+                        <div class="col" style="flex:1;">会员ID</div>
+                    </div>
+                    <div class="row"  ng-repeat="item in info.recList">
+                        <div class="col" style="flex:1;"> <span ng-bind="item.createtime*1000 | date:'yyyy-MM-dd HH:mm'"></span></div>
+                        <div class="col" style="flex:1;"> <span ng-bind="item.mobile"></span></div>
+                        <div class="col" style="flex:1;"><span ng-bind="item.uid"></span></div>
+                    </div>
+                </div>
+
+            <ion-infinite-scroll ng-if="!noMore" on-infinite="loadMore()" distance="1%" immediate-check="false">
+            </ion-infinite-scroll>
+
+    </ion-content>
+
+</ion-view>
