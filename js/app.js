@@ -1,7 +1,6 @@
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.routes', 'starter.services', 'starter.directives', 'ngCordova', 'ngResource', 'ngTouch'])
-  .run(function ($rootScope, $ionicPlatform, Storage, $window, $cordovaInAppBrowser, $cordovaSplashscreen, $location, $ionicHistory, $interval, System, Message, User, $state) {
+  .run(function ($rootScope, $ionicPlatform, Storage, $cordovaInAppBrowser, $cordovaSplashscreen, $location, $ionicHistory, $interval, System, Message, User, $state) {
     $ionicPlatform.ready(function () {
-
       if (window.cordova && window.cordova.plugins && window.cordova.plugins.keyboard) {
         cordova.plugins.keyboard.hideKeyboardAccessoryBar(true);
         cordova.plugins.keyboard.disableScroll(true)
@@ -9,85 +8,46 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.routes', 'st
       if (window.StatusBar) {
         StatusBar.backgroundColorByHexString("#FE5400");
       }
-      // if ($window.cordova) {
-      // $window.CordovaHttpPlugin.get
-      // $window.CordovaHttpPlugin.post
-      // or
-      // cordovaHTTP.get
-      // cordovaHTTP.post
-      // } else {
-      //   // $http.get
-      //   // $http.post
-      // }
     })
 
     // 初始化全局变量
-    $window.tbGet = function (url, params, success, fail) {
-      var userInfo = Storage.get('user');
-      if (userInfo && userInfo.token) {
-        $window.CordovaHttpPlugin.setHeader('TOKEN', userInfo.token)
-      }
-      $window.CordovaHttpPlugin.get(url, params, {}, function (res) {
-        res.data = JSON.parse(res.data);
-        var response = res.data
-        if (typeof success === 'function') {
-          success(response)
-        }
-      }, function (err) {
-        if (typeof fail === 'function') {
-          fail(err)
-        }
-      })
-    }
-    $window.tbPost = function (url, params, success, fail) {
-      var userInfo = Storage.get('user');
-      if (userInfo && userInfo.token) {
-        $window.CordovaHttpPlugin.setHeader('TOKEN', userInfo.token)
-      }
-      $window.CordovaHttpPlugin.post(url, params, {}, function (res) {
-        res.data = JSON.parse(res.data);
-        var response = res.data
-        if (typeof success === 'function') {
-          success(response)
-        }
-      }, function (err) {
-        if (typeof fail === 'function') {
-          fail(err)
-        }
-      })
-    }
     $rootScope.globalInfo = {
       user: (function () {
         return Storage.get('user') || {
-          uid: '',
+          uid: false,
         }
       })()
     };
 
     // 监听路由变化
-    $rootScope.$on('$stateChangeStart', function (event, toState, $scope, $timeout) {
+    $rootScope.$on('$stateChangeStart', function (event, toState, $scope, $rootScope, $timeout) {
       //Object {url: "/login", cache: false, templateUrl: "templates/auth/login.html", controller: "loginCtrl", name: "auth.login"}
-      var noNeedLogin = ['auth.login', 'auth.register', 'auth.resetPsd', 'oneLogin', 'tab.home', 'user.goodInfo','tab.help'];
+      var noNeedLogin = ['auth.login', 'auth.register', 'auth.resetPsd', 'oneLogin', 'tab.home', 'user.goodInfo','tab.help',,'user.newsDetails'];
+      
       if (noNeedLogin.indexOf(toState.name) < 0 && !User.checkAuth()) {
+       
         $state.go("auth.login"); //跳转到登录页
         event.preventDefault(); //阻止默认事件，即原本页面的加载
       }
       if (toState.name == 'tab.home') {
+          
+        User.getHome().then(function (data) {
+          $rootScope.content = data.content.content;
+          var gundong = '<marquee id="affiche" align="left" style="margin:0;color:#fff;background-color:#f8645f;height:30px;" behavior="scroll" bgcolor="#FF0000"' +
+            'direction="left" width="100%" hspace="0" vspace="0" loop="-1" scrollamount="5" scrolldelay="0" onMouseOut="this.start()"' + ' onMouseOver="this.stop()">' +
+            $rootScope.content + '</marquee>'
+          console.log(gundong)
+          var test = document.getElementById('test');
+          test.innerHTML = gundong;
+          // setTimeout(function () {
 
-        if ($window.CordovaHttpPlugin) {
-          User.getHome().then(function (data) {
-            $rootScope.content = data.content.content;
-            var gundong = '<marquee id="affiche" align="left" style="margin:0;color:#fff;background-color:#f8645f;height:30px;" behavior="scroll" bgcolor="#FF0000"' +
-              'direction="left" width="100%" hspace="0" vspace="0" loop="-1" scrollamount="5" scrolldelay="0" onMouseOut="this.start()"' + ' onMouseOver="this.stop()">' +
-              $rootScope.content + '</marquee>'
-            var test = document.getElementById('test');
-            test.innerHTML = gundong;
-          })
-          // })
-        }
+          // }, 0)
 
-      } else {
-        $rootScope.test.innerHTML = ''
+
+
+        })
+      }else{
+           test.innerHTML = '';
       }
     });
 
@@ -100,10 +60,11 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.routes', 'st
         } catch (e) {
           console.info(e);
         }
-      }, 2000);
+      }, 700);
       // System.checkUpdate().then(function (verInfo) {
       //   $cordovaInAppBrowser.open(verInfo.downloadUrl, '_system');
       // }, function () {
+        
       // }); //检查更新
     }, false);
 
@@ -135,8 +96,9 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.routes', 'st
 
   })
   .constant('ENV', {
-    // 'TB_URL': 'http://192.168.0.122/app/index.php?i=1&c=entry&m=taobao',
+    // 'TB_URL': 'http://192.168.0.113/app/index.php?i=1&c=entry&m=taobao',
     'TB_URL': 'http://app.yixianghui99.com/app/index.php?i=37&c=entry&m=taobao',
+    // 'TB_URL': 'http://yxh.weishang6688.com/app/index.php?i=37&c=entry&m=taobao',
     'REGULAR_MONEY': /^\d*(\.\d{1,2}){0,1}$/,
     'REGULAR_MOBILE': /^1\d{10}$/,
     'REGULAR_IDCARD': /^[1-9]\d{7}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}$|^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}([0-9]|X)$/,

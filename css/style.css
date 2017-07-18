@@ -12,7 +12,6 @@ body {
 	font-size: 1rem;
 }
 
-
 .bar.bar-assertive {
     background-color: #FE5400
 }
@@ -885,4 +884,18 @@ padding: 5px 0;
 	padding: 8px 0;
 	margin: 0 10px;
 	border-bottom: 2px solid #ececec;
+}
+.shop-order-list .deleteBtn {
+	overflow: hidden;
+	padding-top: 10px;
+	border-top: 1px solid #eee;
+}
+.shop-order-list .deleteBtn>div {
+    /* display: inline-block; */
+    width: 4em;
+    border: 1px solid #fe5400;
+    color: #fe5400;
+    float: right;
+    border-radius: 5px;
+    text-align: center;
 }

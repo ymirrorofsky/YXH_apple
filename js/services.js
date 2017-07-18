@@ -12,16 +12,13 @@ angular.module('starter.services', [])
       }
     }
   })
-  .factory('System', function ($rootScope, $http, $q, $cordovaAppVersion, $ionicPopup, ENV, $resource, Message, $window) {
+  .factory('System', function ($rootScope, $http, $q, $cordovaAppVersion, $ionicPopup, ENV, $resource, Message) {
     var verInfo;
     var resource = $resource(ENV.TB_URL, { do: 'config', op: '@op' });
     return {
       checkUpdate: function () {
         var deferred = $q.defer();
-        $window.CordovaHttpPlugin.get(ENV.TB_URL + '&do=user&op=getVersion', {}, {}, function (res) {
-          res.data = JSON.parse(res.data);
-          var data = res.data
-          alert(data.data.code)
+        $http.get(ENV.TB_URL + '&do=config&op=getVersion').then(function (data) {
           if (data.data.code != 0) {
             return;
           }
@@ -47,39 +44,7 @@ angular.module('starter.services', [])
           }, function () {
             Message.show('通讯失败，请检查网络')
           })
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-
-
-        // $http.get(ENV.TB_URL + '&do=user&op=getVersion').then(function (data) {
-        //   alert(data.data.code)
-        //   if (data.data.code != 0) {
-        //     return;
-        //   }
-        //   verInfo = data.data.data;
-        //   $cordovaAppVersion.getVersionNumber().then(function (version) {
-        //     if (version < verInfo.version) {
-        //       $confirmPopup = $ionicPopup.confirm({
-        //         template: '发现新版本，是否更新版本',
-        //         buttons: [{
-        //           text: '取消',
-        //           type: 'button-default'
-        //         }, {
-        //           text: '更新',
-        //           type: 'button-positive',
-        //           onTap: function () {
-        //             deferred.resolve(verInfo);
-        //           }
-        //         }]
-        //       })
-        //     } else {
-        //       deferred.reject();
-        //     }
-        //   }, function () {
-        //     Message.show('通讯失败，请检查网络')
-        //   })
-        // }, false)
+        }, false)
         return deferred.promise;
       }
     }
@@ -111,7 +76,6 @@ angular.module('starter.services', [])
         var text = arguments[0] ? arguments[0] : '';
         $ionicLoading.hide();
         $ionicLoading.show({
-
           hideOnStateChange: false,
           duration: 10000,
           template: '<ion-spinner icon="spiral" class="spinner-stable"></ion-spinner><br/>' + text
@@ -151,10 +115,8 @@ angular.module('starter.services', [])
       }
     }
   })
-  .factory('Auth', function ($resource, $rootScope, $q, ENV, Message, $state, Storage, $window) {
+  .factory('Auth', function ($resource, $rootScope, $q, ENV, Message, $state, Storage, $ionicHistory) {
     var resource = $resource(ENV.TB_URL + '&do=auth', { op: '@op' });
-    var authUrl = ENV.TB_URL + '&do=auth';
-
     //检查手机号格式
     var checkMobile = function (mobile) {
       if (!ENV.REGULAR_MOBILE.test(mobile)) {
@@ -176,14 +138,9 @@ angular.module('starter.services', [])
       // 用户注册协议
       fetchAgreement: function () {
         var deferred = $q.defer();
-        $window.tbGet(authUrl, { op: 'agreement' }, function (response) {
+        resource.get({ op: 'agreement' }, function (response) {
           deferred.resolve(response.data);
-        }, function (err) {
-          deferred.reject();
-        })
-        // resource.get({ op: 'agreement' }, function (response) {
-        //   deferred.resolve(response.data);
-        // });
+        });
         return deferred.promise;
       },
       // 登陆操作
@@ -195,35 +152,23 @@ angular.module('starter.services', [])
           return false;
         }
         Message.loading('登陆中……');
-        $window.tbPost(authUrl, { op: 'login', mobile: mobile, password: password }, function (response) {
+        resource.save({
+          op: 'login',
+          mobile: mobile,
+          password: password
+        }, function (response) {
           if (response.code == 0) {
             Message.show('登陆成功', 1000);
             Storage.set("user", response.data);
             $rootScope.globalInfo.user = response.data;
-            $state.go('tab.home');
+            console.log($rootScope.globalInfo.user)
+            $ionicHistory.goBack();
           } else {
             Message.show(response.msg, 1500);
           }
-        }, function (err) {
+        }, function () {
           Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.save({
-        //   op: 'login',
-        //   mobile: mobile,
-        //   password: password
-        // }, function (response) {
-        //   if (response.code == 0) {
-        //     Message.show('登陆成功', 1000);
-        //     Storage.set("user", response.data);
-        //     $rootScope.globalInfo.user = response.data;
-        //     console.log($rootScope.globalInfo.user)
-        //     $state.go('tab.home');
-        //   } else {
-        //     Message.show(response.msg, 1500);
-        //   }
-        // }, function () {
-        //   Message.show('通信错误，请检查网络', 1500);
-        // });
+        });
       },
       //发送注册验证码
       getSmsCaptcha: function (type, tMobile, mobile, pictureCaptcha) {
@@ -249,33 +194,6 @@ angular.module('starter.services', [])
             deferred.resolve();
           }
         });
-        // if ($window.cordova) {
-        //   $window.tbPost(authUrl, _json, function (response) {
-        //     Message.hidden();
-        //     alert(response.code)
-        //     if (response.code != 0) {
-        //       Message.show(response.msg);
-        //       deferred.reject();   //原本的
-        //       // deferred.resolve();    //测试而添加的
-        //       return false;
-        //     } else {
-        //       deferred.resolve();
-        //     }
-        //   }, function (err) {
-        //     Message.show('通信错误，请检查网络', 1500);
-        //   })
-        // } else {
-        //   resource.save(_json, function (response) {
-        //     Message.hidden();
-        //     if (response.code !== 0) {
-        //       Message.show(response.msg);
-        //       deferred.reject();
-        //       return false;
-        //     } else {
-        //       deferred.resolve();
-        //     }
-        //   });
-        // }
         return deferred.promise;
       },
       //检查验证码
@@ -298,29 +216,17 @@ angular.module('starter.services', [])
           };
         }
         Message.loading();
-
-        return $window.tbGet(authUrl, _json, function (response) {
+        return resource.get(_json, function (response) {
           if (response.code !== 0) {
             Message.show(response.msg, 1500);
+            //						Deferred.resolve()
             return;
           }
           $rootScope.$broadcast('Captcha.success');
           Message.show(response.msg, 1000);
-        }, function (err) {
+        }, function () {
           Message.show('通信错误，请检查网络！', 1500);
-        })
-
-        // return resource.get(_json, function (response) {
-        //   if (response.code !== 0) {
-        //     Message.show(response.msg, 1500);
-        //     //						Deferred.resolve()
-        //     return;
-        //   }
-        //   $rootScope.$broadcast('Captcha.success');
-        //   Message.show(response.msg, 1000);
-        // }, function() {
-        //   Message.show('通信错误，请检查网络！', 1500);
-        // });
+        });
       },
       /*设置密码*/
       setPassword: function (reg, type) {
@@ -351,27 +257,16 @@ angular.module('starter.services', [])
           };
         }
         Message.loading();
-
-        $window.tbPost(authUrl, _json, function (response) {
+        return resource.save(_json, function (response) {
           if (response.code !== 0) {
             Message.show(response.msg, 1500);
             return;
           }
           $state.go('auth.login');
           Message.show(response.msg, 1500);
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // return resource.save(_json, function (response) {
-        //   if (response.code !== 0) {
-        //     Message.show(response.msg, 1500);
-        //     return;
-        //   }
-        //   $state.go('auth.login');
-        //   Message.show(response.msg, 1500);
-        // }, function () {
-        //   Message.show('通信错误，请检查网络！', 1500);
-        // });
+        }, function () {
+          Message.show('通信错误，请检查网络！', 1500);
+        });
       },
       //忘记密码获取验证码
       getCaptcha: function (success, error, mobile) {
@@ -384,19 +279,12 @@ angular.module('starter.services', [])
           mobile: mobile
         };
         Message.loading();
-
-        if ($window.cordova) {
-          $window.tbPost(authUrl, _json, success, error)
-        } else {
-          resource.save(_json, success, error);
-        }
-
+        resource.save(_json, success, error);
       },
     }
   })
-  .factory('User', function ($resource, $rootScope, $q, ENV, Message, $state, Storage, $window, $timeout) {
+  .factory('User', function ($resource, $rootScope, $q, ENV, Message, $state, Storage) {
     var resource = $resource(ENV.TB_URL + '&do=user', { op: '@op' });
-    var userUrl = ENV.TB_URL + '&do=user'
     return {
       checkAuth: function () {
         return (Storage.get('user') && Storage.get('user').uid != '');
@@ -406,118 +294,62 @@ angular.module('starter.services', [])
         Storage.remove('user');
         $rootScope.globalInfo.user = { uid: false };
         Message.show('退出成功！', '1500', function () {
+
         });
       },
-      //获取首页数据
       getHome: function () {
-          var deferred = $q.defer();
-          Message.loading();
-          $window.tbPost(ENV.TB_URL + '&do=config', { op: 'getHome' }, function (response) {
-            Message.hidden();
-            if (response.code == 0) {
-              deferred.resolve(response.data);
-            } else if (response.code == 1) {
-              Message.show(response.msg);
-            }
-          }, function (err) {
-            Message.show('通信错误，请检查网络', 1500);
-          })
-          return deferred.promise;
-        // var res = $resource(ENV.TB_URL + '&do=config', { op: '@op' });
-        // res.save({ op: 'getHome' }, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response.data);
-        //   } else if (response.code == 1) {
-        //     Message.show(response.msg);
-        //   }
-        // });
-
-      },
-      getFirstHome: function (success, fail) {
-        $timeout(function () {
-          Message.loading();
-          $window.tbPost(ENV.TB_URL + '&do=config', { op: 'getHome' }, function (response) {
-            Message.hidden();
-            if (response.code == 0) {
-              success(response.data)
-            } else if (response.code == 1) {
-              Message.show(response.msg);
-            }
-          }, function (err) {
-            Message.show('通信错误，请检查网络', 1500);
-          })
-        }, 500)
-      },
-      //获取会员级别
-      getrole: function () {
+        var res = $resource(ENV.TB_URL + '&do=config', { op: '@op' });
         var deferred = $q.defer();
         Message.loading();
-        $window.tbPost(userUrl, { op: 'getrole' }, function (response) {
-          Message.hidden();
-          deferred.resolve(response);
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.save({ op: 'getrole' }, function (response) {
-        //   Message.hidden();
-        //   deferred.resolve(response);
-        // });
-        return deferred.promise;
-      },
-      //获取会员商品信息
-      getGoodInfo: function (cid) {
-        var deferred = $q.defer();
-        $window.tbPost(ENV.TB_URL + '&do=config', { op: 'goodInfo', cid: cid }, function (response) {
-          if (response.code == 0) {
-            deferred.resolve(response.data);
-          } else {
-            Message.show(response.msg)
-            deferred.reject();
-          }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-
-        // resource.save({ op: 'goodInfo', cid: cid }, function (response) {
-        //   if (response.code == 0) {         
-        //     deferred.resolve(response.data);
-        //   } else {
-        //     Message.show(response.msg)
-        //     deferred.reject();
-        //   }
-
-        // });
-        return deferred.promise;
-      },
-      //获取个人信息
-      getSettingInfo: function () {
-        var deferred = $q.defer();
-        var _json = {
-          op: 'getSettingInfo',
-        }
-        Message.loading();
-        $window.tbGet(userUrl, _json, function (response) {
+        res.save({ op: 'getHome' }, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response.data);
           } else if (response.code == 1) {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response.data);
-        //   } else if (response.code == 1) {
-        //     Message.show(response.msg);
-        //   }
-        // });
+        });
         return deferred.promise;
       },
-      //设置个人信息
+      getrole: function () {
+        var deferred = $q.defer();
+        Message.loading();
+        resource.save({ op: 'getrole' }, function (response) {
+          Message.hidden();
+          deferred.resolve(response);
+        });
+        return deferred.promise;
+      },
+      getGoodInfo: function (cid) {
+        var res = $resource(ENV.TB_URL + '&do=config', { op: '@op' });
+        var deferred = $q.defer();
+        res.save({ op: 'goodInfo', cid: cid }, function (response) {
+          if (response.code == 0) {
+            deferred.resolve(response.data);
+          } else {
+            Message.show(response.msg)
+            deferred.reject();
+          }
+
+        });
+        return deferred.promise;
+      },
+      getSettingInfo: function () {
+        var deferred = $q.defer();
+        var _json = {
+          op: 'getSettingInfo',
+        }
+        Message.loading();
+        resource.get(_json, function (response) {
+          Message.hidden();
+          if (response.code == 0) {
+            deferred.resolve(response.data);
+          } else if (response.code == 1) {
+            Message.show(response.msg);
+          }
+        });
+        return deferred.promise;
+      },
       settingInfo: function (info) {
         var deferred = $q.defer();
         var _json = {
@@ -526,7 +358,7 @@ angular.module('starter.services', [])
           gender: info.gender
         }
         Message.loading();
-        $window.tbGet(userUrl, _json, function (response) {
+        resource.get(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response.data);
@@ -534,18 +366,7 @@ angular.module('starter.services', [])
           } else if (response.code == 1) {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response.data);
-        //     Message.show(response.msg);
-        //   } else if (response.code == 1) {
-        //     Message.show(response.msg);
-        //   }
-        // });
+        });
         return deferred.promise;
       },
       // 修改登录及支付密码 获取验证码
@@ -570,7 +391,7 @@ angular.module('starter.services', [])
             repassword: respsd
           }
         }
-        $window.tbPost(userUrl, _json, function (response) {
+        resource.save(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response.data);
@@ -578,23 +399,9 @@ angular.module('starter.services', [])
           } else {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-
-
-
-        // resource.save(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response.data);
-        //     Message.show(response.msg);
-        //   } else {
-        //     Message.show(response.msg);
-        //   }
-        // }, function () {
-        //   Message.show('通信错误，请检查网络!', 1500);
-        // });
+        }, function () {
+          Message.show('通信错误，请检查网络!', 1500);
+        });
         return deferred.promise;
       },
       // 修改登录密码
@@ -608,8 +415,7 @@ angular.module('starter.services', [])
           password: newpsd,
           repassword: respsd
         };
-
-        $window.tbPost(userUrl, _json, function (response) {
+        resource.save(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response.data);
@@ -620,23 +426,9 @@ angular.module('starter.services', [])
           } else {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.save(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response.data);
-        //     Message.show(response.msg);
-        //   } else if (response.code == 301) {
-        //     Message.show(response.msg);
-        //     $state.go('user.center');
-        //   } else {
-        //     Message.show(response.msg);
-        //   }
-        // }, function () {
-        //   Message.show('通信错误，请检查网络!', 1500);
-        // });
+        }, function () {
+          Message.show('通信错误，请检查网络!', 1500);
+        });
         return deferred.promise;
       },
       // 修改支付密码
@@ -650,7 +442,7 @@ angular.module('starter.services', [])
           password: newpsd,
           repassword: respsd
         };
-        $window.tbGet(userUrl, _json, function (response) {
+        resource.get(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response.data);
@@ -660,22 +452,9 @@ angular.module('starter.services', [])
           } else {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response.data);
-        //   } else if (response.code == 301) {
-        //     Message.show(response.msg);
-        //     $state.go('user.center');
-        //   } else {
-        //     Message.show(response.msg);
-        //   }
-        // }, function () {
-        //   Message.show('通信错误，请检查网络!', 1500);
-        // });
+        }, function () {
+          Message.show('通信错误，请检查网络!', 1500);
+        });
         return deferred.promise;
       },
       //获取提现须知
@@ -685,24 +464,15 @@ angular.module('starter.services', [])
           op: 'MoneyNote',
         }
         Message.loading();
-        $window.tbGet(userUrl, _json, function (response) {
+        resource.get(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response.data);
           } else {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response.data);
-        //   } else {
-        //     Message.show(response.msg);
-        //   }  
-        // });
+
+        });
         return deferred.promise;
       },
       //获取提现信息
@@ -716,24 +486,14 @@ angular.module('starter.services', [])
           role: shopUser.role
         };
         Message.loading();
-        $window.tbPost(userUrl, _json, function (response) {
+        resource.save(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response.data);
           } else {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.save(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response.data);
-        //   } else {
-        //     Message.show(response.msg);
-        //   }
-        // });
+        });
         return deferred.promise;
       },
       //提现申请
@@ -750,24 +510,14 @@ angular.module('starter.services', [])
           // count: info.cost.count
         };
         Message.loading();
-        $window.tbPost(userUrl, _json, function (response) {
+        resource.save(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response.data);
           } else {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.save(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response.data);
-        //   } else {
-        //     Message.show(response.msg);
-        //   }
-        // });
+        });
         return deferred.promise;
       },
       // 提现列表
@@ -776,16 +526,10 @@ angular.module('starter.services', [])
         var deferred = $q.defer();
         page = page || 1;
         Message.loading();
-        $window.tbPost(userUrl, { op: 'withdrawList', type: type, page: page, uid: shopUser.uid }, function (response) {
+        resource.save({ op: 'withdrawList', type: type, page: page, uid: shopUser.uid }, function (response) {
           Message.hidden();
           deferred.resolve(response);
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.save({ op: 'withdrawList', type: type, page: page, uid: shopUser.uid }, function (response) {
-        //   Message.hidden();
-        //   deferred.resolve(response);
-        // });
+        });
         return deferred.promise;
       },
       // 提现单
@@ -793,25 +537,14 @@ angular.module('starter.services', [])
         var shopUser = Storage.get('user')
         var deferred = $q.defer();
         Message.loading();
-        $window.tbPost(userUrl, { op: 'getWithdrawInfo', id: id }, function (response) {
+        resource.save({ op: 'getWithdrawInfo', id: id }, function (response) {
           Message.hidden();
+          deferred.resolve(response);
           if (response.code == 1) {
             Message.show(response.msg);
             return;
           }
-          deferred.resolve(response);
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-
-        // resource.save({ op: 'getWithdrawInfo', id: id }, function (response) {
-        //   Message.hidden();
-        //   deferred.resolve(response);
-        //   if (response.code == 1) {
-        //     Message.show(response.msg);
-        //     return;
-        //   }
-        // });
+        });
         return deferred.promise;
       },
       //获取我的信息
@@ -823,52 +556,34 @@ angular.module('starter.services', [])
           uid: shopUser.uid,
         }
         Message.loading();
-        $window.tbGet(ENV.TB_URL + '&do=user', _json, function (response) {
+        resource.get(_json, function (response) {
           Message.hidden();
-          deferred.resolve(response.data);
-        }, function (err) {
-          deferred.reject();
-        })
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response.data);
-        //   } else if (response.code == 1) {
-        //     Message.show(response.msg);
-        //   }
+          if (response.code == 0) {
+            deferred.resolve(response.data);
+          } else if (response.code == 1) {
+            Message.show(response.msg);
+          }
 
-        // });
+        });
         return deferred.promise;
       },
-      //获取推荐下级总数
+      //获取推荐下级
       fetchRecPerson: function () {
         var deferred = $q.defer();
         var _json = {
           op: 'recPerson',
         }
         Message.loading();
-        $window.tbGet(userUrl, _json, function (response) {
+        resource.get(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response.data);
           } else {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response.data);
-        //   } else {
-        //     Message.show(response.msg);
-        //   }
-        // });
+        });
         return deferred.promise;
       },
-      //获取推荐下级列表
       fetchRecPersonList: function (role, page) {
         var deferred = $q.defer();
         page = page || 1;
@@ -878,54 +593,33 @@ angular.module('starter.services', [])
           page: page
         }
         Message.loading();
-        $window.tbGet(userUrl, _json, function (response) {
+        resource.get(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response);
           } else {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response);
-        //   } else {
-        //     Message.show(response.msg);
-        //   }
-        // });
+        });
         return deferred.promise;
       },
-      //获取推荐下级会员总收益
+      //获取推荐下级会员收益
       fetchRecProfit: function () {
         var deferred = $q.defer();
         var _json = {
           op: 'recProfit',
         }
         Message.loading();
-        $window.tbGet(userUrl, _json, function (response) {
+        resource.get(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response.data);
           } else {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response.data);
-        //   } else {
-        //     Message.show(response.msg);
-        //   }
-        // });
+        });
         return deferred.promise;
       },
-      //获取推荐下级会员收益列表
       fetchRecProfitList: function (select, page) {
         var deferred = $q.defer();
         page = page || 1;
@@ -935,56 +629,34 @@ angular.module('starter.services', [])
           page: page
         }
         Message.loading();
-        $window.tbGet(userUrl, _json, function (response) {
+        resource.get(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response);
           } else {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response);
-        //   } else {
-        //     Message.show(response.msg);
-        //   }
-        // });
+        });
         return deferred.promise;
       },
 
-      //获取推荐下级会员消费总收益
+      //获取推荐下级会员消费收益
       fetchRecBProfit: function (select, page) {
         var deferred = $q.defer();
         var _json = {
           op: 'recBuyProfit',
         }
         Message.loading();
-        $window.tbGet(userUrl, _json, function (response) {
+        resource.get(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
-            deferred.resolve(response);
+            deferred.resolve(response.data);
           } else {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response.data);
-        //   } else {
-        //     Message.show(response.msg);
-        //   }
-        // });
+        });
         return deferred.promise;
       },
-      //获取推荐下级会员消费收益列表
       fetchRecBProfitList: function (select, page) {
         var deferred = $q.defer();
         page = page || 1;
@@ -994,93 +666,62 @@ angular.module('starter.services', [])
           page: page
         }
         Message.loading();
-        $window.tbGet(userUrl, _json, function (response) {
+        resource.get(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response);
           } else {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response);
-        //   } else {
-        //     Message.show(response.msg);
-        //   }
-        // });
+        });
         return deferred.promise;
       },
       // 用户帮助列表
       useHelp: function (page) {
+        var res = $resource(ENV.TB_URL + '&do=config', { op: '@op' });
         var deferred = $q.defer();
-        page = page || 1
+        page = page || 1;
         var _json = {
           op: 'helpList',
-          page : page
+          page: page
         };
         Message.loading();
-        $window.tbGet(ENV.TB_URL + '&do=config', _json, function (response) {
-          
+        res.get(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response);
           } else {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        //   var res = $resource(ENV.TB_URL + '&do=config', { op: '@op' });
-        // res.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response);
-        //   } else {
-        //     Message.show(response.msg);
-        //   }
 
-        // }, function () {
-        //   Message.show('通信错误，请检查网络!', 1500);
-        // });
+        }, function () {
+          Message.show('通信错误，请检查网络!', 1500);
+        });
         return deferred.promise;
       },
       // 用户帮助列表详情
       helpInfo: function (id) {
+        var res = $resource(ENV.TB_URL + '&do=config', { op: '@op' });
         var deferred = $q.defer();
         var _json = {
           op: 'helpInfo',
           id: id
         };
         Message.loading();
-        $window.tbGet(ENV.TB_URL + '&do=config', _json, function (response) {
+        res.get(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response.data);
           } else {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
 
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response.data);
-        //   } else {
-        //     Message.show(response.msg);
-        //   }
-
-        // }, function () {
-        //   Message.show('通信错误，请检查网络!', 1500);
-        // });
+        }, function () {
+          Message.show('通信错误，请检查网络!', 1500);
+        });
         return deferred.promise;
       },
-      // 忘记支付密码获取验证码
+      // 忘记密码获取验证码
       resetPwd: function (newpsd, respsd) {
         Message.loading();
         var deferred = $q.defer();
@@ -1090,7 +731,7 @@ angular.module('starter.services', [])
           password: newpsd,
           repassword: respsd
         }
-        $window.tbGet(userUrl, _json, function (response) {
+        resource.get(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response.data);
@@ -1098,20 +739,9 @@ angular.module('starter.services', [])
           } else {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response.data);
-        //     Message.show(response.msg);
-        //   } else {
-        //     Message.show(response.msg);
-        //   }
-        // }, function () {
-        //   Message.show('通信错误，请检查网络!', 1500);
-        // });
+        }, function () {
+          Message.show('通信错误，请检查网络!', 1500);
+        });
         return deferred.promise;
       },
       // 忘记支付密码提交修改
@@ -1124,7 +754,7 @@ angular.module('starter.services', [])
           password: newpsd,
           repassword: respsd
         }
-        $window.tbGet(userUrl, _json, function (response) {
+        resource.get(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response.data);
@@ -1134,83 +764,65 @@ angular.module('starter.services', [])
           } else {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response.data);
-        //   } else if (response.code == 301) {
-        //     Message.show(response.msg);
-        //     $state.go('user.center');
-        //   } else {
-        //     Message.show(response.msg);
-        //   }
-        // }, function () {
-        //   Message.show('通信错误，请检查网络!', 1500);
-        // });
+        }, function () {
+          Message.show('通信错误，请检查网络!', 1500);
+        });
         return deferred.promise;
       },
-      //获取推荐二维码
       recomCode: function () {
         var deferred = $q.defer();
         Message.loading();
-        $window.tbPost(userUrl, { op: 'getQrcode' }, function (response) {
+        resource.save({ op: 'getQrcode' }, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response.data)
           } else {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
         })
-        // resource.save({ op: 'getQrcode' }, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response.data)
-        //   } else {
-        //     Message.show(response.msg);
-        //   }
-        // })
         return deferred.promise;
       }
 
 
     }
   })
-  .factory('Order', function ($resource, $rootScope, $q, ENV, Message, $state, Storage, $ionicPopup, $window) {
+  .factory('Order', function ($resource, $rootScope, $q, ENV, Message, $state, Storage, $ionicPopup) {
     var resource = $resource(ENV.TB_URL + '&do=order', { op: '@op' });
-    var orderUrl = ENV.TB_URL + '&do=order';
     return {
-      //获取下单平台
+      //删除待付款订单
+      deleteOrder: function (id) {
+        var deferred = $q.defer();
+        var _json = {
+          op: 'deleteorder',
+          id : id
+        };
+        Message.loading();
+        resource.save(_json, function (response) {
+          Message.hidden();
+          console.log(response);
+          if (response.code == 0) {
+            deferred.resolve(response);
+          } else {
+            Message.show(response.msg);
+            deferred.reject();
+          }
+
+        });
+        return deferred.promise;
+      },
       getPlatform: function () {
         var deferred = $q.defer();
         Message.loading();
-        $window.tbPost(orderUrl, { op: 'getPlatform' }, function (response) {
+        resource.save({ op: 'getPlatform' }, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response.data);
           } else {
             Message.show(response.msg)
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
         })
-
-        // resource.save({ op: 'getPlatform' }, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response.data);
-        //   } else {
-        //     Message.show(response.msg)
-        //   }
-        // })
         return deferred.promise;
       },
-      //下单
       create: function (payInfo) {
         var deferred = $q.defer();
         var _json = {
@@ -1223,8 +835,9 @@ angular.module('starter.services', [])
           thumbs: payInfo.img,
           message: payInfo.message,
         }
-        $window.tbPost(orderUrl, _json, function (response) {
+        resource.save(_json, function (response) {
           if (response.code == 0) {
+
             Message.show(response.msg)
             deferred.resolve(response.data);
           } else if (response.code == 3) {
@@ -1240,30 +853,10 @@ angular.module('starter.services', [])
             Message.show(response.msg)
             deferred.reject();
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.save(_json, function (response) {
-        //   if (response.code == 0) {
-        //     Message.show(response.msg)
-        //     deferred.resolve(response.data);
-        //   } else if (response.code == 3) {
-        //     var alertPopup = $ionicPopup.alert({
-        //       title: '提示',
-        //       template: '本月提交订单金额累计超过最大限度',
-        //       okText: '确定'
-        //     });
-        //     alertPopup.then(function (res) {
-        //       return false;
-        //     });
-        //   } else {
-        //     Message.show(response.msg)
-        //     deferred.reject();
-        //   }
-        // });
+
+        });
         return deferred.promise;
       },
-      //创建会员商品订单
       memcreate: function (info, area) {
         console.log(info)
         var deferred = $q.defer();
@@ -1276,19 +869,13 @@ angular.module('starter.services', [])
           birth: area,
           message: info.message
         }
-        $window.tbPost(orderUrl, _json, function (response) {
+        console.log(_json)
+        resource.save(_json, function (response) {
           Message.hidden();
           deferred.resolve(response);
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.save(_json, function (response) {
-        //   Message.hidden();
-        //   deferred.resolve(response);
-        // });
+        });
         return deferred.promise;
       },
-      //获取订单列表
       getList: function (type, page) {
         var deferred = $q.defer();
         page = page || 1;
@@ -1298,31 +885,19 @@ angular.module('starter.services', [])
           page: page
         };
         Message.loading();
-        $window.tbPost(orderUrl, _json, function (response) {
+        resource.save(_json, function (response) {
           Message.hidden();
+          console.log(response);
           if (response.code == 0) {
             deferred.resolve(response);
           } else {
             Message.show(response.msg);
             deferred.reject();
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.save(_json, function (response) {
-        //   Message.hidden();
-        //   console.log(response);
-        //   if (response.code == 0) {
-        //     deferred.resolve(response);
-        //   } else {
-        //     Message.show(response.msg);
-        //     deferred.reject();
-        //   }
 
-        // });
+        });
         return deferred.promise;
       },
-      //获取会员商品订单详情
       getmemorderInfo: function (orderId) {
         var deferred = $q.defer();
         var _json = {
@@ -1330,19 +905,12 @@ angular.module('starter.services', [])
           orderId: orderId,
         }
         Message.loading();
-        $window.tbGet(orderUrl, _json, function (response) {
+        resource.get(_json, function (response) {
           Message.hidden();
           deferred.resolve(response);
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   deferred.resolve(response);
-        // });
+        });
         return deferred.promise;
       },
-      //获取订单详情
       getInfo: function (orderId) {
         var deferred = $q.defer();
         var _json = {
@@ -1350,27 +918,17 @@ angular.module('starter.services', [])
           orderId: orderId,
         }
         Message.loading();
-        $window.tbGet(orderUrl, _json, function (response) {
+        resource.get(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response);
           } else if (response.code == 1) {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response);
-        //   } else if (response.code == 1) {
-        //     Message.show(response.msg);
-        //   }
-        // });
+        });
         return deferred.promise;
       },
-      //确认收货
+      //确认shouh
       sureGet: function (orderId) {
         var deferred = $q.defer();
         var _json = {
@@ -1378,28 +936,16 @@ angular.module('starter.services', [])
           orderId: orderId,
         }
         Message.loading();
-        $window.tbGet(orderUrl, _json, function (response) {
+        resource.get(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve();
           } else if (response.code == 1) {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
         })
-
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve();
-        //   } else if (response.code == 1) {
-        //     Message.show(response.msg);
-        //   }
-        // })
         return deferred.promise;
       },
-      //完成订单
       sureFinish: function (orderId) {
         var deferred = $q.defer();
         var _json = {
@@ -1407,59 +953,38 @@ angular.module('starter.services', [])
           orderId: orderId,
         }
         Message.loading();
-        $window.tbGet(orderUrl, _json, function (response) {
+        resource.get(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve();
           } else if (response.code == 1) {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
         })
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve();
-        //   } else if (response.code == 1) {
-        //     Message.show(response.msg);
-        //   }
-        // })
         return deferred.promise;
       },
-      //激励明细
-      getMoneyBack: function (time, page) {
+      getMoneyBack: function (page) {
         var shopUser = Storage.get('user')
         var deferred = $q.defer();
         page = page || 1;
         var _json = {
           op: 'moneyBack',
           spid: shopUser.uid,
-          page: page
+          page: page  
         }
         Message.loading();
-        $window.tbGet(orderUrl, _json, function (response) {
+        resource.get(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response);
           } else if (response.code == 1) {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
-        })
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response);
-        //   } else if (response.code == 1) {
-        //     Message.show(response.msg);
-        //   }
 
-        // });
+        });
         return deferred.promise;
       },
-      //申请退货
+      //确认shouh
       return: function (orderInfo) {
         console.log(orderInfo)
         var deferred = $q.defer();
@@ -1469,27 +994,16 @@ angular.module('starter.services', [])
           returnMsg: orderInfo.returnMsg
         }
         Message.loading();
-        $window.tbGet(orderUrl, _json, function (response) {
+        resource.get(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve();
           } else if (response.code == 1) {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
         })
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve();
-        //   } else if (response.code == 1) {
-        //     Message.show(response.msg);
-        //   }
-        // })
         return deferred.promise;
       },
-      //获取退货列表
       getGoodReturn: function (reSelect, page) {
         var deferred = $q.defer();
         page = page || 1;
@@ -1499,46 +1013,35 @@ angular.module('starter.services', [])
           page: page
         }
         Message.loading();
-        $window.tbGet(orderUrl, _json, function (response) {
+        resource.get(_json, function (response) {
           Message.hidden();
           if (response.code == 0) {
             deferred.resolve(response);
           } else if (response.code == 1) {
             Message.show(response.msg);
           }
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
         })
-        // resource.get(_json, function (response) {
-        //   Message.hidden();
-        //   if (response.code == 0) {
-        //     deferred.resolve(response);
-        //   } else if (response.code == 1) {
-        //     Message.show(response.msg);
-        //   }
-        // })
         return deferred.promise;
       },
       // 提现列表
-      // getRepoList: function (type, page) {
-      //   var shopUser = Storage.get('user')
-      //   var deferred = $q.defer();
-      //   page = page || 1;
-      //   Message.loading();
-      //   resource.save({ op: 'withdrawList', type: type, page: page, uid: shopUser.uid }, function (response) {
-      //     Message.hidden();
-      //     deferred.resolve(response);
-      //   });
-      //   return deferred.promise;
-      // },
+      getRepoList: function (type, page) {
+        var shopUser = Storage.get('user')
+        var deferred = $q.defer();
+        page = page || 1;
+        Message.loading();
+        resource.save({ op: 'withdrawList', type: type, page: page, uid: shopUser.uid }, function (response) {
+          Message.hidden();
+          deferred.resolve(response);
+        });
+        return deferred.promise;
+      },
 
 
     }
   })
-  .factory('Payment', function ($resource, $rootScope, $ionicLoading, ENV, Message, $state, $ionicPopup, $ionicHistory, $window) {
+  .factory('Payment', function ($resource, $rootScope, $ionicLoading, ENV, Message, $state, $ionicPopup, $ionicHistory) {
     var payType = {};
     var resource = $resource(ENV.TB_URL + '&do=payment');
-    var paymentUrl = ENV.TB_URL + '&do=payment';
     return {
       // 支付宝支付
       alipay: function (model, info, ordertype) {
@@ -1563,11 +1066,23 @@ angular.module('starter.services', [])
             }
           }
         }
-        $window.tbGet(paymentUrl, _json, function (response) {
-          var payInfo = response.data.payInfo;
+        resource.get(_json, function (response) {
+          console.log(response)
+          payInfo = response.data.payInfo;
+          console.log(payInfo)
+          // var alertPopup = $ionicPopup.alert({
+          //   title: '提示!',
+          //   template: '模拟支付成功'
+          // });
+          // alertPopup.then(function (res) {
+          //   $ionicHistory.clearCache().then(function () { $state.go('tab.my') })
+          // });
           document.addEventListener("deviceready", function () {
             cordova.plugins.alipay.payment(payInfo, function (successResults) {
               if (successResults.resultStatus == "9000") {
+                // Message.show("支付成功");
+                // 一个提示对话框
+
                 var alertPopup = $ionicPopup.alert({
                   title: '提示!',
                   template: '支付成功'
@@ -1575,52 +1090,72 @@ angular.module('starter.services', [])
                 alertPopup.then(function (res) {
                   $ionicHistory.clearCache().then(function () { $state.go('tab.my') })
                 });
+
               }
             }, function (errorResults) {
-              Message.show('支付失败')
+
+              // Message.show()
             });
           }, false);
-        }, function (err) {
-          Message.show('通信错误，请检查网络', 1500);
+        }, function () {
+          Message.show("通信超时，请重试！");
         })
 
+      },
+      // 微信支付
+      wechatPay: function (model, info, ordertype) {
+        //				Wechat.isInstalled('', function(reason) {
+        //					Message.show('使用微信支付，请先安装微信', 2000);
+        //				});
+        //				Message.loading("正在打开微信支付！");
+        var _json = {};
+        if (model == 'welfare') {
+          if (ordertype && ordertype == 'goods') {
+            _json = {
+              op: 'getWechat', /*, uid: userInfo.uid, signature: sign.signature, timestamp: sign.timestamp*/
+              model: 'welfare',
+              price: info.price,
+              orderId: info.orderId,
+              uid: $rootScope.globalInfo.user.uid,
+              type: ordertype
+            }
+          } else {
+            _json = {
+              op: 'getWechat', /*, uid: userInfo.uid, signature: sign.signature, timestamp: sign.timestamp*/
+              model: 'welfare',
+              price: info.price,
+              orderId: info.orderId,
+              uid: $rootScope.globalInfo.user.uid,
+            }
+          }
+        }
+        resource.get(_json, function (response) {
+          Message.hidden();
+          wechatParams = response.data;
+          var params = {
+            appid: wechatParams.appid,
+            partnerid: wechatParams.partnerid, // merchant id
+            prepayid: wechatParams.prepayid, // prepay id
+            noncestr: wechatParams.noncestr, // nonce
+            timestamp: wechatParams.timestamp, // timestamp
+            sign: wechatParams.sign, // signed string
+            package: wechatParams.package
+          };
+          //					console.log(params);
+          Wechat.sendPaymentRequest(params, function (successResults) {
+            var alertPopup = $ionicPopup.alert({
+              title: '提示!',
+              template: '支付成功'
+            });
+            alertPopup.then(function (res) {
+              $ionicHistory.clearCache().then(function () { $state.go('tab.my') })
+            });
+          }, function (err) {
 
-
-        // resource.get(_json, function (response) {
-        //   console.log(response)
-        //   payInfo = response.data.payInfo;
-        //   console.log(payInfo)
-        //   // var alertPopup = $ionicPopup.alert({
-        //   //   title: '提示!',
-        //   //   template: '模拟支付成功'
-        //   // });
-        //   // alertPopup.then(function (res) {
-        //   //   $ionicHistory.clearCache().then(function () { $state.go('tab.my') })
-        //   // });
-        //   document.addEventListener("deviceready", function () {
-        //     cordova.plugins.alipay.payment(payInfo, function (successResults) {
-        //       if (successResults.resultStatus == "9000") {
-        //         // Message.show("支付成功");
-        //         // 一个提示对话框
-
-        //         var alertPopup = $ionicPopup.alert({
-        //           title: '提示!',
-        //           template: '支付成功'
-        //         });
-        //         alertPopup.then(function (res) {
-        //           $ionicHistory.clearCache().then(function () { $state.go('tab.my') })
-        //         });
-
-        //       }
-        //     }, function (errorResults) {
-
-        //       Message.show()
-        //     });
-        //   }, false);
-        // }, function () {
-        //   Message.show("通信超时，请重试！");
-        // })
-
-      }
+          });
+        }, function () {
+          Message.show("通信超时，请重试！");
+        });
+      },
     }
   })

@@ -1,11 +1,11 @@
 <ion-view view-title="个人中心" hide-nav-bar="true" hide-back-button="true">
-    <ion-header-bar class="bar-assertive header-back">
+    <ion-header-bar class="bar-assertive header-back" >
         <div class="buttons" ui-sref="user.center">
             <button class="button iconfont icon-shezhi button-clear button-icon-size" style="padding-left:14px;font-size:24px;"></button>
         </div>
         <h1 class="title">个人中心</h1>
     </ion-header-bar>
-    <ion-content class="bodybg-normal" >
+    <ion-content class="bodybg-normal">
         <ion-refresher pulling-text="下拉刷新..." on-refresh="doRefresh()"></ion-refresher>
         <div class="my-header">
             <div class="mobile">
@@ -14,7 +14,7 @@
                 <i class="iconfont icon-silver" style="padding:11px 0;color:#d5cccc;font-size:40px;text-shadow: 1px 3px 3px #6e888f;" ng-if="info.role == 2"></i>
                 <i class="iconfont icon-copper" style="padding:11px 0;color: rgba(203,185,123,0.93);font-size:40px;text-shadow: 1px 3px 3px #88793d;" ng-if="info.role == 3"></i>
                 <!--color: linear-gradient(to right, rgba(203,185,123,0.93) , rgba(244,237,183,0.93));-->
-                <p style="margin: 5px 0 10px;">ID: <span ng-bind="info.uid || '无'"></span>&nbsp;&nbsp;&nbsp;&nbsp;账号:<span ng-bind="info.mobile || '无'"></span>&nbsp;&nbsp;&nbsp;&nbsp;级别:
+                <p style="margin: 5px 0 10px;">ID: <span ng-bind="info.uid || '无'"></span>&nbsp;&nbsp;&nbsp;&nbsp;账号:<span ng-bind="info.mobile || '15603815316'"></span>&nbsp;&nbsp;&nbsp;&nbsp;级别:
                     <span
                         ng-bind="rank[info.role] || '无'"></span>
                 </p>

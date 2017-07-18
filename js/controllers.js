@@ -1,57 +1,36 @@
 angular.module('starter.controllers', [])
 
   .controller('homeCtrl', function ($scope, Storage, $ionicPopup, $state, $rootScope, User, $ionicSlideBoxDelegate, $ionicLoading, $cordovaInAppBrowser, $timeout) {
-    $scope.info = {
-      banner: [],
-      goods: [],
-      navigation: []
-    }
+    // $scope.$on("$ionicView.enter", function () {
+    //   if (!$rootScope.globalInfo.user.uid) {
+    //     $state.go('auth.login')
+    //   }
+    // });
 
-    angular.element(document).ready(function () {
-      // User.getHome().then(function (data) {
-      //   alert('成功返回')
-      //   $scope.info = data;
-      //   $rootScope.content = $scope.info.content.content;
-      //   $timeout(function () {
-      //     if ($scope.info.banner) {
-      //       var swiper = new Swiper('.swiper-container', {
-      //         autoplay: 4000,
-      //         loop: true,
-      //         pagination: '.swiper-pagination',
-      //         paginationClickable: true
-      //       });
-      //     }
-      //     var gundong = '<marquee id="affiche" align="left" style="margin:0;color:#fff;background-color:#f8645f;height:30px;" behavior="scroll" bgcolor="#FF0000"' +
-      //       'direction="left" width="100%" hspace="0" vspace="0" loop="-1" scrollamount="5" scrolldelay="0" onMouseOut="this.start()"' + ' onMouseOver="this.stop()">' +
-      //       $rootScope.content + '</marquee>'
-      //     var test = document.getElementById('test');
-      //     test.innerHTML = gundong;
+    User.getHome().then(function (data) {
 
-      //   }, 0)
-      // })
-      $rootScope.test = document.getElementById('test');
-      User.getFirstHome(function (data) {
-        $scope.info = data;
-        $rootScope.content = $scope.info.content.content;
-        $timeout(function () {
-          if ($scope.info.banner) {
-            var swiper = new Swiper('.swiper-container', {
-              autoplay: 4000,
-              loop: true,
-              pagination: '.swiper-pagination',
-              paginationClickable: true
-            });
-          }
-          var gundong = '<marquee id="affiche" align="left" style="margin:0;color:#fff;background-color:#f8645f;height:30px;" behavior="scroll" bgcolor="#FF0000"' +
-            'direction="left" width="100%" hspace="0" vspace="0" loop="-1" scrollamount="5" scrolldelay="0" onMouseOut="this.start()"' + ' onMouseOver="this.stop()">' +
-            $rootScope.content + '</marquee>'
-          var test = document.getElementById('test');
-          test.innerHTML = gundong;
+      $scope.info = data;
+      $rootScope.content = $scope.info.content.content;
+      $timeout(function () {
+        if ($scope.info.banner) {
+          var swiper = new Swiper('.swiper-container', {
+            autoplay: 4000,
+            loop: true,
+            pagination: '.swiper-pagination',
+            paginationClickable: true
+          });
+        }
+        var gundong = '<marquee id="affiche" align="left" style="margin:0;color:#fff;background-color:#f8645f;height:30px;" behavior="scroll" bgcolor="#FF0000"' +
+          'direction="left" width="100%" hspace="0" vspace="0" loop="-1" scrollamount="5" scrolldelay="0" onMouseOut="this.start()"' + ' onMouseOver="this.stop()">' +
+          $rootScope.content + '</marquee>'
+        var test = document.getElementById('test');
+        test.innerHTML = gundong;
 
-        }, 0)
-      })
+      }, 0)
+
+
+
     })
-
 
     $scope.doRefresh = function () {
       User.getHome().then(function (data) {
@@ -91,27 +70,103 @@ angular.module('starter.controllers', [])
 
     }
     $scope.openLink = function (url) {
-      $scope.url = url
-      var options = {
-        location: 'no',
-        clearcache: 'yes',
-        toolbar: 'yes'
-      };
-      document.addEventListener("deviceready", function () {
-        $cordovaInAppBrowser.open($scope.url, '_blank', options)
-          .then(function (event) {
-            // success
-          })
-          .catch(function (event) {
-            // error
-          });
+      if (url) {
+        $scope.url = url
+        var options = {
+          location: 'no',
+          clearcache: 'yes',
+          toolbar: 'yes'
+        };
+        document.addEventListener("deviceready", function () {
+          $cordovaInAppBrowser.open($scope.url, '_blank', options)
+            .then(function (event) {
+              // success
+            })
+            .catch(function (event) {
+              // error
+            });
 
 
-        // $cordovaInAppBrowser.close();
+          // $cordovaInAppBrowser.close();
 
-      }, false);
+        }, false);
+      }
+
     }
 
+
+    $scope.slideImgs = [
+      {
+        src: 'http://img.zcool.cn/community/01f20b580dc026a84a0e282bace64b.jpg@900w_1l_2o_100sh.jpg'
+      },
+      {
+        src: 'http://img3.imgtn.bdimg.com/it/u=2700298075,1732077336&fm=23&gp=0.jpg'
+      },
+      {
+        src: 'http://img.zcool.cn/community/01d75b57e0ff840000018c1b748e15.jpg@900w_1l_2o_100sh.jpg'
+      }
+    ];
+    $scope.goods = [
+      {
+        src: 'http://pic.58pic.com/58pic/17/25/71/21G58PICDik_1024.jpg'
+      },
+      {
+        src: 'http://img3.imgtn.bdimg.com/it/u=2700298075,1732077336&fm=23&gp=0.jpg'
+      },
+      {
+        src: 'http://img.zcool.cn/community/01d75b57e0ff840000018c1b748e15.jpg@900w_1l_2o_100sh.jpg'
+      }
+    ];
+    $scope.buyLists = [
+      {
+        src: 'http://img1.imgtn.bdimg.com/it/u=49089206,3766566677&fm=23&gp=0.jpg',
+        title: '苏宁易购'
+      },
+      {
+        src: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1495183937&di=43c1432663e9b2c3bdd0602e139ae762&imgtype=jpg&er=1&src=http%3A%2F%2F7.pic.pc6.com%2Fthumb%2Fup%2F2016-5%2F2016518151329_600_0.png',
+        title: '蘑菇街'
+      },
+      {
+        src: 'http://91.gdown.baidu.com/img/0/512_512/a4a00005fbebc5354884d3da5a514b38.png',
+        title: '美丽说'
+      },
+      {
+        src: 'http://h.hiphotos.bdimg.com/wisegame/pic/item/462dd42a2834349bbc7272afc3ea15ce36d3bea0.jpg',
+        title: '天猫'
+      },
+      {
+        src: 'http://img1.imgtn.bdimg.com/it/u=49089206,3766566677&fm=23&gp=0.jpg',
+        title: '苏宁易购'
+      },
+      {
+        src: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1495183937&di=43c1432663e9b2c3bdd0602e139ae762&imgtype=jpg&er=1&src=http%3A%2F%2F7.pic.pc6.com%2Fthumb%2Fup%2F2016-5%2F2016518151329_600_0.png',
+        title: '蘑菇街'
+      },
+      {
+        src: 'http://91.gdown.baidu.com/img/0/512_512/a4a00005fbebc5354884d3da5a514b38.png',
+        title: '美丽说'
+      },
+      {
+        src: 'https://ss0.bdstatic.com/-0U0bnSm1A5BphGlnYG/tam-ogel/e1e94eafe693ae655648cf3bdae9f329_121_121.jpg',
+        title: '国美在线'
+      },
+      {
+        src: 'http://img1.imgtn.bdimg.com/it/u=49089206,3766566677&fm=23&gp=0.jpg',
+        title: '苏宁易购'
+      },
+      {
+        src: 'https://ss0.bdstatic.com/-0U0bnSm1A5BphGlnYG/tam-ogel/e1e94eafe693ae655648cf3bdae9f329_121_121.jpg',
+        title: '国美在线'
+      },
+      {
+        src: 'http://91.gdown.baidu.com/img/0/512_512/a4a00005fbebc5354884d3da5a514b38.png',
+        title: '美丽说'
+      },
+      {
+        src: 'http://h.hiphotos.bdimg.com/wisegame/pic/item/462dd42a2834349bbc7272afc3ea15ce36d3bea0.jpg',
+        title: '天猫'
+      }
+    ]
     $scope.createOrder = function () {
       if (!$rootScope.globalInfo.user.uid) {
         $state.go('auth.login');
@@ -189,17 +244,21 @@ angular.module('starter.controllers', [])
 
   })
   .controller('loginCtrl', function ($rootScope, $scope, $ionicModal, $state, Message, Auth, $ionicHistory, $window) {
-    // alert('after')
-    // $scope.$on("$ionicView.enter", function () {
 
+    // $scope.$on("$ionicView.enter", function () {
+    //   $ionicHistory.clearCache();
+    //   $ionicHistory.clearHistory();
     //   if ($rootScope.globalInfo.user.uid) {
-    //     alert('test')
     //     $state.go('tab.home')
-    //   } else {
-    //     $ionicHistory.clearCache();
-    //     $ionicHistory.clearHistory();
     //   }
     // });
+      $scope.goBack = function(){
+        if( $ionicHistory.backView()){
+          $ionicHistory.goBack()
+        }else {
+          $state.go('tab.home')
+        }
+      }
     $scope.agree = true;
     $scope.authAgree = function () {
       $scope.agree = !$scope.agree;
@@ -623,19 +682,19 @@ angular.module('starter.controllers', [])
     $scope.orderConfirm = function () {
       if ($scope.payType == 'wechat') {
         //noinspection JSUnresolvedVariable
-        console.log('weixin')
-        if (!window.Wechat) {
-          alert("暂不支持微信支付！");
-          return false;
-        }
-        Payment.wechatPay(model);
+        // console.log('weixin')
+        // if (!window.Wechat) {
+        //   alert("暂不支持微信支付！");
+        //   return false;
+        // }
+        Payment.wechatPay('welfare', $scope.payInfo, $scope.memType);
       } else if ($scope.payType == 'alipay') {
         console.log('支付宝')
         Payment.alipay('welfare', $scope.payInfo, $scope.memType)
       }
     };
   })
-  .controller('userOrderListCtrl', function ($scope, $rootScope, $stateParams, Order, $ionicModal, $timeout, $ionicLoading) {
+  .controller('userOrderListCtrl', function ($scope, $rootScope, $stateParams, Order, $ionicModal, $timeout, $ionicLoading,$ionicPopup) {
     $scope.orderStatus = {
       '1': '待付款',
       '2': '待收货',
@@ -656,6 +715,36 @@ angular.module('starter.controllers', [])
         $scope.orderList = response.data;
       }
     });
+    //删除待付款订单  
+    $scope.delete = function (id) {
+      var confirmPopup = $ionicPopup.confirm({
+        title: '提示',
+        template: '确定删除该订单吗?',
+        cancelText: '取消',
+        okText: '确定'
+      });
+      confirmPopup.then(function (res) {
+        if (res) {
+          $scope.noMore = true;
+          Order.deleteOrder(id).then(function (response) {
+            $scope.noMore = false;
+            Order.getList($scope.type).then(function (response) {
+              $scope.orderList = response.data;
+              if (response.data == '' || response.data.length == 0) {
+                $scope.orderEmpty = true;
+              } else {
+                $scope.orderEmpty = false;
+                $scope.orderList = response.data;
+              }
+            });
+          })
+        } else {
+         
+        }
+      });
+
+
+    }
     //下拉刷新
     $scope.doRefresh = function () {
       $scope.noMore = true;
@@ -802,7 +891,7 @@ angular.module('starter.controllers', [])
       var options = {
         location: 'yes',
         clearcache: 'yes',
-        toolbar: 'no'
+        toolbar: 'yes'
       };
       document.addEventListener("deviceready", function () {
         $cordovaInAppBrowser.open('http://www.kuaidi100.com/', '_blank', options)
@@ -858,7 +947,7 @@ angular.module('starter.controllers', [])
       System.checkUpdate().then(function (verInfo) {
         $cordovaInAppBrowser.open(verInfo.downloadUrl, '_system');
       }, function () {
-        Message.show('此版本是最新版！')
+        Message.show('此版本是最新版！')  
       });
 
     }
@@ -1048,8 +1137,9 @@ angular.module('starter.controllers', [])
 
     $scope.active = function (id) {
       $scope.select = id;
-      $scope.noMore = false;
+      $scope.noMore = true;
       User.getRepoList(id).then(function (response) {
+        $scope.noMore = false;
         $scope.repoList = response.data
         if (response.data == '' || response.data.length == 0) {
           $scope.orderEmpty = true;
@@ -1182,7 +1272,7 @@ angular.module('starter.controllers', [])
       $scope.info.count = data
     })
     User.fetchRecPersonList($scope.select).then(function (response) {
-      $scope.info.recList = response.data;
+      $scope.info.recList = response.data
       if (response.data == '' || response.data.length == 0) {
         $scope.orderEmpty = true;
       } else {
@@ -1194,8 +1284,8 @@ angular.module('starter.controllers', [])
       $scope.select = select;
       $scope.noMore = true;
       User.fetchRecPersonList($scope.select).then(function (response) {
-        $scope.info.recList = response.data;
         $scope.noMore = false;
+        $scope.info.recList = response.data
         if (response.data == '' || response.data.length == 0) {
           $scope.orderEmpty = true;
         } else {
@@ -1210,7 +1300,7 @@ angular.module('starter.controllers', [])
         console.log('l')
         if ($scope.select <= 3) {
           User.fetchRecPersonList($scope.select).then(function (response) {
-            $scope.info.recList = response.data;
+            $scope.info.recList = response.data
             if (response.data == '' || response.data.length == 0) {
               $scope.orderEmpty = true;
             } else {
@@ -1225,7 +1315,7 @@ angular.module('starter.controllers', [])
         $scope.select--;
         if ($scope.select > 0) {
           User.fetchRecPersonList($scope.select).then(function (response) {
-            $scope.info.recList = response.data;
+            $scope.info.recList = response.data
             if (response.data == '' || response.data.length == 0) {
               $scope.orderEmpty = true;
             } else {
@@ -1245,7 +1335,7 @@ angular.module('starter.controllers', [])
         $scope.info.count = data
       })
       User.fetchRecPersonList($scope.select).then(function (response) {
-        $scope.info.recList = response.data;
+        $scope.info.recList = response.data
         if (response.data == '' || response.data.length == 0) {
           $scope.orderEmpty = true;
         } else {
@@ -1307,8 +1397,8 @@ angular.module('starter.controllers', [])
       $scope.select = select;
       $scope.noMore = true;
       User.fetchRecProfitList($scope.select).then(function (response) {
-        $scope.noMore = false;
         $scope.info.profitList = response.data
+        $scope.noMore = false;
         if (response.data == '' || response.data.length == 0) {
           $scope.orderEmpty = true;
         } else {
@@ -1357,7 +1447,7 @@ angular.module('starter.controllers', [])
         $scope.info.count = data
       })
       User.fetchRecProfitList($scope.select).then(function (response) {
-        $scope.info.profitList = response.data
+        $scope.info.profitList = response.data;
         if (response.data == '' || response.data.length == 0) {
           $scope.orderEmpty = true;
         } else {
@@ -1408,7 +1498,7 @@ angular.module('starter.controllers', [])
 
 
     User.fetchRecBProfitList($scope.select).then(function (response) {
-      $scope.info.buyList = response.data;
+      $scope.info.buyList = response.data
       if (response.data == '' || response.data.length == 0) {
         $scope.orderEmpty = true;
       } else {
@@ -1421,7 +1511,7 @@ angular.module('starter.controllers', [])
       $scope.noMore = true;
       User.fetchRecBProfitList($scope.select).then(function (response) {
         $scope.noMore = false;
-        $scope.info.buyList = response.data;
+        $scope.info.buyList = response.data
         if (response.data == '' || response.data.length == 0) {
           $scope.orderEmpty = true;
         } else {
@@ -1436,7 +1526,7 @@ angular.module('starter.controllers', [])
         console.log('l')
         if ($scope.select <= 3) {
           User.fetchRecBProfitList($scope.select).then(function (response) {
-            $scope.info.buyList = response.data;
+            $scope.info.buyList = response.data
             if (response.data == '' || response.data.length == 0) {
               $scope.orderEmpty = true;
             } else {
@@ -1451,7 +1541,7 @@ angular.module('starter.controllers', [])
         $scope.select--;
         if ($scope.select > 0) {
           User.fetchRecBProfitList($scope.select).then(function (response) {
-            $scope.info.buyList = response.data;
+            $scope.info.buyList = response.data
             if (response.data == '' || response.data.length == 0) {
               $scope.orderEmpty = true;
             } else {
@@ -1470,7 +1560,7 @@ angular.module('starter.controllers', [])
         $scope.info.count = data
       })
       User.fetchRecBProfitList($scope.select).then(function (response) {
-        $scope.info.buyList = response.data;
+        $scope.info.buyList = response.data
         if (response.data == '' || response.data.length == 0) {
           $scope.orderEmpty = true;
         } else {
@@ -1516,6 +1606,7 @@ angular.module('starter.controllers', [])
       $scope.userList = response.data;
     });
     $scope.doRefresh = function () {
+      $scope.noMore = true;
       User.useHelp().then(function (response) {
         $scope.userList = response.data;
         $scope.$broadcast('scroll.refreshComplete');
@@ -1611,7 +1702,7 @@ angular.module('starter.controllers', [])
     $scope.orderEmpty = false;
     $scope.reSelect = $scope.type || 1;
     Order.getGoodReturn($scope.reSelect).then(function (response) {
-      $scope.returnList = response.data;
+      $scope.returnList = response.data
       if (response.data == '' || response.data.length == 0) {
         $scope.orderEmpty = true;
       } else {
@@ -1625,7 +1716,7 @@ angular.module('starter.controllers', [])
       $scope.noMore = true;
       Order.getGoodReturn(id).then(function (response) {
         $scope.noMore = false;
-        $scope.returnList = response.data;
+        $scope.returnList = response.data
         if (response.data == '' || response.data.length == 0) {
           $scope.orderEmpty = true;
         } else {
@@ -1639,7 +1730,7 @@ angular.module('starter.controllers', [])
     $scope.doRefresh = function () {
       $scope.noMore = true;
       Order.getGoodReturn($scope.reSelect).then(function (response) {
-        $scope.returnList = response.data;
+        $scope.returnList = response.data
         if (response.data == '' || response.data.length == 0) {
           $scope.orderEmpty = true;
         } else {
